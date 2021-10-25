@@ -40,10 +40,8 @@ install_version() {
 
   (
     mkdir -p "$install_path/bin"
-    cp -r "$ASDF_DOWNLOAD_PATH"/${TOOL_NAME} "$install_path/bin/${TOOL_NAME}"
-
-    test -x "$install_path/bin/${TOOL_NAME}" || fail "Expected $install_path/bin/${TOOL_NAME} to be executable."
-
+    cp -r "$ASDF_DOWNLOAD_PATH"/$TOOL_NAME "$install_path/bin/$TOOL_NAME"
+    test -x "$install_path/bin/$TOOL_NAME" || fail "Expected $install_path/bin/$TOOL_NAME to be executable."
     echo "$TOOL_NAME $version installation was successful!"
   ) || (
     rm -rf "$install_path"
