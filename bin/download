@@ -6,45 +6,47 @@ current_script_path=${BASH_SOURCE[0]}
 plugin_dir=$(dirname "$(dirname "$current_script_path")")
 
 get_arch() {
-    local a=$(uname | tr '[:upper:]' '[:lower:]')
+  local a
+  a=$(uname | tr '[:upper:]' '[:lower:]')
 
-    # anyone know a better way to detect musl?
-    if [ -f /etc/alpine-release ]; then
-        a="alpine"
-    fi
+  # anyone know a better way to detect musl?
+  if [ -f /etc/alpine-release ]; then
+    a="alpine"
+  fi
 
-    case "$a" in
-    'darwin') local arch="apple-darwin" ;;
-    'linux') local arch="unknown-linux-gnu" ;;
-    'alpine') local arch="unknown-linux-musl" ;;
-    esac
+  case "$a" in
+  'darwin') local arch="apple-darwin" ;;
+  'linux') local arch="unknown-linux-gnu" ;;
+  'alpine') local arch="unknown-linux-musl" ;;
+  esac
 
-    echo "$arch"
+  echo "$arch"
 }
 
 get_cpu() {
-    local machine_hardware_name="$(uname -m)"
+  local machine_hardware_name
+  machine_hardware_name="$(uname -m)"
 
-    case "$machine_hardware_name" in
-    'x86_64') local cpu_type="x86_64" ;;
-    'aarch64') local cpu_type="x86_64" ;;
-    'armv7l') local cpu_type="arm" ;;
-    *) local cpu_type="$machine_hardware_name" ;;
-    esac
+  case "$machine_hardware_name" in
+  'x86_64') local cpu_type="x86_64" ;;
+  'aarch64') local cpu_type="x86_64" ;;
+  'armv7l') local cpu_type="arm" ;;
+  *) local cpu_type="$machine_hardware_name" ;;
+  esac
 
-    echo "$cpu_type"
+  echo "$cpu_type"
 }
 
 # ex.
 # https://github.com/adamrodger/gcloud-ctx/releases/download/v0.5.0/gctx-x86_64-apple-darwin.tar.gz
 #
 get_download_url() {
-    local version="$1"
-    echo "https://github.com/adamrodger/gcloud-ctx/releases/download/v${version}/$(get_release_file)"
+  local version="$1"
+  echo "https://github.com/adamrodger/gcloud-ctx/releases/download/v${version}/$(get_release_file)"
 }
 
 get_release_file() {
-    echo "gctx-$(get_cpu)-$(get_arch).tar.gz"
+  echo "gctx-$(get_cpu)-$(get_arch).tar.gz"
 }
 
 # shellcheck source=../lib/utils.bash
@@ -53,19 +55,19 @@ source "${plugin_dir}/lib/utils.bash"
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
 release_file=$(get_release_file)
-download_url=$(get_download_url $ASDF_INSTALL_VERSION)
+download_url=$(get_download_url "$ASDF_INSTALL_VERSION")
 
 echo "Downloading ${ASDF_INSTALL_VERSION} from ${download_url}"
 
 curl -fsSL \
-    -o ${release_file} \
-    ${download_url}
+  -o "${release_file}" \
+  "${download_url}"
 
 #  Extract contents of tar.gz file into the download directory
 tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" || fail "Could not extract $release_file"
 
 # Make gctx executable
-chmod +x $ASDF_DOWNLOAD_PATH/gctx
+chmod +x "$ASDF_DOWNLOAD_PATH"/gctx
 
 # Remove the tar.gz file since we don't need to keep it
 rm "$release_file"
